@@ -210,8 +210,43 @@ func NewExtensions(apiHooks agonesv1.APIHooks, wh *webhooks.WebHook) *Extensions
 
 	wh.AddHandler("/mutate", agonesv1.Kind("GameServer"), admissionv1.Create, ext.creationMutationHandler)
 	wh.AddHandler("/validate", agonesv1.Kind("GameServer"), admissionv1.Create, ext.creationValidationHandler)
+	wh.AddHandler("/validate", agonesv1.Kind("GameServer"), admissionv1.Update, ext.updateValidationHandler)
 
 	return ext
+}
+
+// updateValidationHandler that validates a GameServer during an update for feature Counts and Lists
+// Should only be called on gameserver Counts and Lists update operations.
+// [Stage:Alpha]
+// [FeatureFlag:CountsAndLists]
+func (ext *Extensions) updateValidationHandler(review admissionv1.AdmissionReview) (admissionv1.AdmissionReview, error) {
+	ext.baseLogger.WithField("review", review).Debug("updateValidationHandler")
+
+	newGs := &agonesv1.GameServer{}
+	oldGs := &agonesv1.GameServer{}
+
+	newObj := review.Request.Object
+	if err := json.Unmarshal(newObj.Raw, newGs); err != nil {
+		return review, errors.Wrapf(err, "error unmarshalling new GameServer json: %s", newObj.Raw)
+	}
+
+	oldObj := review.Request.OldObject
+	if err := json.Unmarshal(oldObj.Raw, oldGs); err != nil {
+		return review, errors.Wrapf(err, "error unmarshalling old GameServer json: %s", oldObj.Raw)
+	}
+
+	if errs := oldGs.ValidateCountsListsUpdate(newGs); len(errs) > 0 {
+		kind := runtimeschema.GroupKind{
+			Group: review.Request.Kind.Group,
+			Kind:  review.Request.Kind.Kind,
+		}
+		statusErr := k8serrors.NewInvalid(kind, review.Request.Name, errs)
+		review.Response.Allowed = false
+		review.Response.Result = &statusErr.ErrStatus
+		loggerForGameServer(newGs, ext.baseLogger).WithField("review", review).Debug("Invalid GameServer update")
+	}
+
+	return review, nil
 }
 
 func (c *Controller) enqueueGameServerBasedOnState(item interface{}) {

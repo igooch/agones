@@ -28,6 +28,7 @@ import (
 	agonesv1 "agones.dev/agones/pkg/apis/agones/v1"
 	"agones.dev/agones/pkg/cloudproduct/generic"
 	agtesting "agones.dev/agones/pkg/testing"
+	agruntime "agones.dev/agones/pkg/util/runtime"
 	"agones.dev/agones/pkg/util/webhooks"
 	"github.com/heptiolabs/healthcheck"
 	"github.com/mattbaird/jsonpatch"
@@ -1972,6 +1973,69 @@ func TestControllerAddSDKServerEnvVars(t *testing.T) {
 				assert.Contains(t, c.Env, corev1.EnvVar{Name: grpcPortEnvVar, Value: strconv.Itoa(int(gs.Spec.SdkServer.GRPCPort))})
 				assert.Contains(t, c.Env, corev1.EnvVar{Name: httpPortEnvVar, Value: strconv.Itoa(int(gs.Spec.SdkServer.HTTPPort))})
 			}
+		}
+	})
+}
+
+func TestUpdateValidationHandler(t *testing.T) {
+	t.Parallel()
+
+	agruntime.FeatureTestMutex.Lock()
+	defer agruntime.FeatureTestMutex.Unlock()
+	assert.NoError(t, agruntime.ParseFeatures(fmt.Sprintf("%s=true", agruntime.FeatureCountsAndLists)))
+
+	ext := newFakeExtensions()
+	gvk := metav1.GroupVersionKind(agonesv1.SchemeGroupVersion.WithKind("GameServer"))
+
+	gsFixture := &agonesv1.GameServer{ObjectMeta: metav1.ObjectMeta{Name: "test", Namespace: "default"},
+		Status: agonesv1.GameServerStatus{State: agonesv1.GameServerStateAllocated,
+			Counters: map[string]agonesv1.CounterStatus{
+				"foos": {
+					Count:    0,
+					Capacity: 100,
+				}},
+			Lists: map[string]agonesv1.ListStatus{
+				"bars": {
+					Capacity: 10,
+					Values:   []string{"bar1", "bar2"},
+				}},
+		}}
+	gsFixture.ApplyDefaults()
+
+	raw, err := json.Marshal(gsFixture)
+	require.NoError(t, err)
+
+	t.Run("valid gameserver counter update", func(t *testing.T) {
+		newGS := gsFixture.DeepCopy()
+		foos := agonesv1.CounterStatus{
+			Count:    100,
+			Capacity: 100,
+		}
+		newGS.Status.Counters["foos"] = foos
+		newRaw, err := json.Marshal(newGS)
+		require.NoError(t, err)
+
+		review := admissionv1.AdmissionReview{
+			Request: &admissionv1.AdmissionRequest{
+				Kind:      gvk,
+				Operation: admissionv1.Update,
+				Object: runtime.RawExtension{
+					Raw: newRaw,
+				},
+				OldObject: runtime.RawExtension{
+					Raw: raw,
+				},
+			},
+			Response: &admissionv1.AdmissionResponse{Allowed: true},
+		}
+
+		result, err := ext.updateValidationHandler(review)
+		require.NoError(t, err)
+		if !assert.True(t, result.Response.Allowed) {
+			// show the reason of the failure
+			require.NotNil(t, result.Response.Result)
+			require.NotNil(t, result.Response.Result.Details)
+			require.NotEmpty(t, result.Response.Result.Details.Causes)
 		}
 	})
 }

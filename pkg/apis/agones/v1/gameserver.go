@@ -24,6 +24,7 @@ import (
 	"agones.dev/agones/pkg/apis"
 	"agones.dev/agones/pkg/apis/agones"
 	"agones.dev/agones/pkg/util/runtime"
+	"github.com/google/go-cmp/cmp"
 	"github.com/mattbaird/jsonpatch"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -865,6 +866,103 @@ func (gs *GameServer) Patch(delta *GameServer) ([]byte, error) {
 
 	result, err = json.Marshal(patch)
 	return result, errors.Wrapf(err, "error creating json for patch for GameServer %s", gs.ObjectMeta.Name)
+}
+
+// ValidateCountsListsUpdate validates a GameServer during an update for feature Counts and Lists
+// [Stage:Alpha]
+// [FeatureFlag:CountsAndLists]
+func (gs *GameServer) ValidateCountsListsUpdate(newGS *GameServer) field.ErrorList {
+	var allErrs field.ErrorList
+	if !runtime.FeatureEnabled(runtime.FeatureCountsAndLists) {
+		// TODO: Use Counters and / or Lists as the field path?
+		allErrs = append(allErrs, field.Forbidden(field.NewPath("FeatureCountsAndLists"), fmt.Sprintf("Value cannot be set unless feature flag %s is enabled", runtime.FeatureCountsAndLists)))
+	}
+
+	// TODO: Do we want to validate and / or prevent updates to the spec?
+
+	// Validate Counts & Lists Status
+	errs := gs.validateCounters(newGS.Status.Counters)
+	allErrs = append(allErrs, errs...)
+
+	errs = gs.validateLists(newGS.Status.Lists)
+	allErrs = append(allErrs, errs...)
+
+	return allErrs
+}
+
+func (gs *GameServer) validateCounters(counters map[string]CounterStatus) field.ErrorList {
+	var allErrs field.ErrorList
+	// If there are no changes exit early
+	if cmp.Equal(gs.Status.Counters, counters) {
+		return allErrs
+	}
+
+	for name, counter := range counters {
+		// Make sure all Counters in the new Gameserver exist in the current Gameserver
+		if _, ok := gs.Status.Counters[name]; !ok {
+			allErrs = append(allErrs, field.Forbidden(field.NewPath("counters"),
+				fmt.Sprintf("Counter %s must be predefined in the GameServer resource on creation", name)))
+		} else {
+			if counter.Count < 0 || counter.Count > counter.Capacity {
+				allErrs = append(allErrs, field.Forbidden(field.NewPath("counters"),
+					fmt.Sprintf("Counter %s Count %d must be within range [0,Capacity %d]", name, counter.Count, counter.Capacity)))
+			}
+			if counter.Capacity < 0 {
+				allErrs = append(allErrs, field.Forbidden(field.NewPath("counters"),
+					fmt.Sprintf("Counter %s Capacity %d must be equal to or greater than 0", name, counter.Capacity)))
+			}
+		}
+	}
+
+	// Make sure all Counters in the current Gameserver exist in the new Gameserver
+	for name := range gs.Status.Counters {
+		if _, ok := counters[name]; !ok {
+			allErrs = append(allErrs, field.Forbidden(field.NewPath("counters"),
+				fmt.Sprintf("Counter %s predefined in the GameServer resource on creation cannot be deleted", name)))
+		}
+	}
+
+	return allErrs
+}
+
+func (gs *GameServer) validateLists(lists map[string]ListStatus) field.ErrorList {
+	var allErrs field.ErrorList
+	// If there are no changes exit early
+	if cmp.Equal(gs.Status.Lists, lists) {
+		return allErrs
+	}
+
+	for name, list := range lists {
+		// Make sure all Lists in the new Gameserver exist in the current Gameserver
+		if _, ok := gs.Status.Lists[name]; !ok {
+			allErrs = append(allErrs, field.Forbidden(field.NewPath("lists"),
+				fmt.Sprintf("List %s must be predefined in the GameServer resource on creation", name)))
+		} else {
+			length := int64(len(list.Values))
+			if length > list.Capacity {
+				allErrs = append(allErrs, field.Forbidden(field.NewPath("lists"),
+					fmt.Sprintf("List %s length %d must be within range [0,Capacity %d]", name, length, list.Capacity)))
+			}
+			if list.Capacity < 0 {
+				allErrs = append(allErrs, field.Forbidden(field.NewPath("lists"),
+					fmt.Sprintf("List %s Capacity %d must be within range [0,1000]", name, list.Capacity)))
+			}
+			// TODO: Do we want to check for duplicate values, or handle that elsewhere? As in
+			// mergeRemoveDuplicates below, or will that be handled by x-kubernetes-list-type: set in the CRD?
+			// How much of this validation do we need to do if it's done by the CRD? Or do we do it here
+			// anyways or order to give verbose errors to the client?
+		}
+	}
+
+	// Make sure all Lists in the current Gameserver exist in the new Gameserver
+	for name := range gs.Status.Lists {
+		if _, ok := lists[name]; !ok {
+			allErrs = append(allErrs, field.Forbidden(field.NewPath("lists"),
+				fmt.Sprintf("List %s predefined in the GameServer resource on creation cannot be deleted", name)))
+		}
+	}
+
+	return allErrs
 }
 
 // UpdateCount increments or decrements a CounterStatus on a Game Server by the given amount.
