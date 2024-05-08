@@ -18,11 +18,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -1477,6 +1479,23 @@ func TestCounters(t *testing.T) {
 				logrus.WithField("msg", msg).Info("Sending GetCounterCount")
 				reply, err = framework.SendGameServerUDP(t, gs, msg)
 				require.NoError(t, err)
+
+				var wg sync.WaitGroup
+				wg.Add(1)
+
+				if testCase.wantCount != reply {
+					go func() {
+						// Write pod logs
+						writeLogs(ctx, framework.Namespace, "agones.dev/role=gameserver", "agones-gameserver-sidecar", "tmp/pod_log")
+						// Write controller logs
+						writeLogs(ctx, "agones-system", "agones.dev/role=controller", "agones-controller", "tmp/ctrl_log")
+						defer wg.Done()
+					}()
+				} else {
+					wg.Done()
+				}
+
+				wg.Wait()
 				assert.Equal(t, testCase.wantCount, reply)
 			}
 
@@ -1488,6 +1507,46 @@ func TestCounters(t *testing.T) {
 				assert.Equal(t, testCase.wantCapacity, reply)
 			}
 		})
+	}
+}
+
+func writeLogs(ctx context.Context, ns string, label string, container string, filePath string) {
+	pods := framework.KubeClient.CoreV1().Pods(ns)
+	podList, err := pods.List(ctx, metav1.ListOptions{
+		LabelSelector: label,
+	})
+	if err != nil {
+		logrus.Error("unable to list pods", err)
+		return
+	}
+
+	for i := range podList.Items {
+		p := &podList.Items[i]
+		req := pods.GetLogs(p.Name, &corev1.PodLogOptions{Container: container})
+		podLogs, err := req.Stream(ctx)
+		if err != nil {
+			logrus.Error("error in opening stream", err)
+			return
+		}
+
+		buf := new(bytes.Buffer)
+		_, err = io.Copy(buf, podLogs)
+		podLogs.Close()
+		if err != nil {
+			logrus.Error("error in copy information from podLogs to buf", err)
+			return
+		}
+		f, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		if err != nil {
+			logrus.Error("error opening file", err)
+			return
+		}
+		_, err = f.Write(buf.Bytes())
+		f.Close()
+		if err != nil {
+			logrus.Error("unable to write to file", err)
+			return
+		}
 	}
 }
 
