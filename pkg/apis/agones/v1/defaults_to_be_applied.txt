@@ -1,0 +1,16 @@
+goos: linux
+goarch: amd64
+pkg: agones.dev/agones/pkg/apis/agones/v1
+cpu: AMD EPYC 7B13
+BenchmarkApplyDefauts/ApplyDefaults-48         	   20768	     50090 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   36890	     51132 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   32479	     37965 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   33812	     42257 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   36211	     48285 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   35118	     46075 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   33973	     43649 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   28005	     40051 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   29530	     38906 ns/op	   38400 B/op	     500 allocs/op
+BenchmarkApplyDefauts/ApplyDefaults-48         	   26496	     39502 ns/op	   38400 B/op	     500 allocs/op
+PASS
+ok  	agones.dev/agones/pkg/apis/agones/v1	50.361s

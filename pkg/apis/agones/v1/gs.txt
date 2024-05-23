@@ -1,0 +1,68 @@
+{
+	"metadata": {
+		"creationTimestamp": null,
+		"annotations": {
+			"agones.dev/sdk-version": "dev"
+		},
+		"finalizers": [
+			"agones.dev"
+		]
+	},
+	"spec": {
+		"container": "testing2",
+		"ports": [
+			{
+				"range": "default",
+				"portPolicy": "Static",
+				"container": "testing2",
+				"protocol": "TCP"
+			}
+		],
+		"health": {
+			"periodSeconds": 12,
+			"failureThreshold": 10,
+			"initialDelaySeconds": 11
+		},
+		"scheduling": "Packed",
+		"sdkServer": {
+			"logLevel": "Info",
+			"grpcPort": 9357,
+			"httpPort": 9358
+		},
+		"template": {
+			"metadata": {
+				"creationTimestamp": null
+			},
+			"spec": {
+				"containers": [
+					{
+						"name": "testing",
+						"image": "testing/image",
+						"resources": {}
+					},
+					{
+						"name": "testing2",
+						"image": "testing/image2",
+						"resources": {}
+					}
+				]
+			}
+		},
+		"eviction": {
+			"safe": "Never"
+		}
+	},
+	"status": {
+		"state": "TestState",
+		"ports": null,
+		"address": "",
+		"addresses": null,
+		"nodeName": "",
+		"reservedUntil": null,
+		"players": null,
+		"eviction": {
+			"safe": "Never"
+		}
+	}
+}
+

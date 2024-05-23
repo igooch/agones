@@ -166,6 +166,59 @@ func TestGameServerFindGameServerContainer(t *testing.T) {
 	assert.Equal(t, gs.Spec.Template.Spec.Containers[0], container)
 }
 
+// Benchmark for running ApplyDefaults on lists of Game Servers
+func BenchmarkApplyDefauts(b *testing.B) {
+	// Create this many game servers per benchmark iteration
+	NUMGS := 100
+
+	benchData := map[string]struct {
+		f     func() *GameServer
+		numGs int
+	}{
+		"defaults to be applied": {
+			f:     defaultGameServer,
+			numGs: NUMGS,
+		},
+		"defaults already applied": {
+			f: func() *GameServer {
+				g := defaultGameServer()
+				g.ApplyDefaults()
+				return g
+			},
+			numGs: NUMGS,
+		},
+	}
+
+	for benchName, data := range benchData {
+		b.ResetTimer()
+		b.Run(benchName, func(b *testing.B) {
+			b.ReportAllocs()
+			b.StopTimer()
+			gameServerLists := createGameServerLists(data.f, b.N, data.numGs)
+			b.StartTimer()
+			for i := 0; i < b.N; i++ {
+				for _, gs := range gameServerLists[i] {
+					gs.ApplyDefaults()
+				}
+			}
+		})
+	}
+}
+
+// Helper function to do upfront work of creating lists of GameServers of benchmarking
+func createGameServerLists(gsf func() *GameServer, numLists, numGs int) [][]*GameServer {
+	listOfGameServerLists := [][]*GameServer{}
+	for i := 0; i < numLists; i++ {
+		gameServerList := []*GameServer{}
+		for j := 0; j < numGs; j++ {
+			gs := gsf()
+			gameServerList = append(gameServerList, gs)
+		}
+		listOfGameServerLists = append(listOfGameServerLists, gameServerList)
+	}
+	return listOfGameServerLists
+}
+
 func TestGameServerApplyDefaults(t *testing.T) {
 	t.Parallel()
 
