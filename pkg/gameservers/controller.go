@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -260,6 +261,12 @@ func (ext *Extensions) creationMutationHandler(review admissionv1.AdmissionRevie
 	// This is the main logic of this function
 	// the rest is really just json plumbing
 	gs.ApplyDefaults()
+
+	if gs.Spec.FooBar != "" {
+		fmt.Printf("gs.Spec.FooBar: %s", gs.Spec.FooBar)
+	} else {
+		log.Fatalf("gs.Spec.FooBar Fatalf: %s", gs.Spec.FooBar)
+	}
 
 	newGS, err := json.Marshal(gs)
 	if err != nil {

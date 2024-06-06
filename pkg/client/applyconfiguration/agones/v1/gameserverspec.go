@@ -20,6 +20,7 @@ package v1
 
 import (
 	apis "agones.dev/agones/pkg/apis"
+	agonesv1 "agones.dev/agones/pkg/apis/agones/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -36,6 +37,7 @@ type GameServerSpecApplyConfiguration struct {
 	Counters   map[string]CounterStatusApplyConfiguration `json:"counters,omitempty"`
 	Lists      map[string]ListStatusApplyConfiguration    `json:"lists,omitempty"`
 	Eviction   *EvictionApplyConfiguration                `json:"eviction,omitempty"`
+	FooBar     *agonesv1.FooBar                           `json:"foobar,omitempty"`
 }
 
 // GameServerSpecApplyConfiguration constructs an declarative configuration of the GameServerSpec type for use with
@@ -138,5 +140,13 @@ func (b *GameServerSpecApplyConfiguration) WithLists(entries map[string]ListStat
 // If called multiple times, the Eviction field is set to the value of the last call.
 func (b *GameServerSpecApplyConfiguration) WithEviction(value *EvictionApplyConfiguration) *GameServerSpecApplyConfiguration {
 	b.Eviction = value
+	return b
+}
+
+// WithFooBar sets the FooBar field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the FooBar field is set to the value of the last call.
+func (b *GameServerSpecApplyConfiguration) WithFooBar(value agonesv1.FooBar) *GameServerSpecApplyConfiguration {
+	b.FooBar = &value
 	return b
 }

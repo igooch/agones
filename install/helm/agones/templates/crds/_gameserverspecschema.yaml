@@ -158,6 +158,18 @@ properties:
             type: integer
             title: The initial player capacity of this Game Server
             minimum: 0
+      foobars:
+        type: object
+        title: Testing CRD Defaulting on Upgrade
+        properties:
+          foobar:
+            title: Testing CRD Defaulting on Upgrade
+            type: string
+            default: FOO
+            enum:
+            - FOO
+            - BAR
+            - BAZ
       counters:
         type: object
         title: Map of player, room, session, etc. counters
