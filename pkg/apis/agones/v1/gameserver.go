@@ -241,20 +241,11 @@ type GameServerSpec struct {
 	// +optional
 	Eviction *Eviction `json:"eviction,omitempty"`
 	// immutableReplicas is present in gameservers.agones.dev but omitted here (it's always 1).
-	FooBar FooBar `json:"foobar,omitempty"`
+	FooBars FooBar `json:"foobars,omitempty"`
 }
 
 // FooBar is for testing CRD defaulting
-type FooBar string
-
-const (
-	// FooBarFoo is for testing CRD defaulting
-	FooBarFoo FooBar = "Foo"
-	// FooBarBar is for testing CRD defaulting
-	FooBarBar FooBar = "Bar"
-	// FooBarBaz is for testing CRD defaulting
-	FooBarBaz FooBar = "Baz"
-)
+type FooBar int64
 
 // PlayersSpec tracks the initial player capacity
 type PlayersSpec struct {

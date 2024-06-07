@@ -5481,12 +5481,8 @@ spec:
                          properties:
                            foobar:
                              title: Testing CRD Defaulting on Upgrade
-                             type: string
-                             default: FOO
-                             enum:
-                             - FOO
-                             - BAR
-                             - BAZ
+                             type: integer
+                             default: 1000
                        counters:
                          type: object
                          title: Map of player, room, session, etc. counters
@@ -10920,12 +10916,8 @@ spec:
                  properties:
                    foobar:
                      title: Testing CRD Defaulting on Upgrade
-                     type: string
-                     default: FOO
-                     enum:
-                     - FOO
-                     - BAR
-                     - BAZ
+                     type: integer
+                     default: 1000
                counters:
                  type: object
                  title: Map of player, room, session, etc. counters
@@ -16481,12 +16473,8 @@ spec:
                           properties:
                             foobar:
                               title: Testing CRD Defaulting on Upgrade
-                              type: string
-                              default: FOO
-                              enum:
-                              - FOO
-                              - BAR
-                              - BAZ
+                              type: integer
+                              default: 1000
                         counters:
                           type: object
                           title: Map of player, room, session, etc. counters

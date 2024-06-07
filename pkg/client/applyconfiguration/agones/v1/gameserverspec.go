@@ -37,7 +37,7 @@ type GameServerSpecApplyConfiguration struct {
 	Counters   map[string]CounterStatusApplyConfiguration `json:"counters,omitempty"`
 	Lists      map[string]ListStatusApplyConfiguration    `json:"lists,omitempty"`
 	Eviction   *EvictionApplyConfiguration                `json:"eviction,omitempty"`
-	FooBar     *agonesv1.FooBar                           `json:"foobar,omitempty"`
+	FooBars    *agonesv1.FooBar                           `json:"foobars,omitempty"`
 }
 
 // GameServerSpecApplyConfiguration constructs an declarative configuration of the GameServerSpec type for use with
@@ -143,10 +143,10 @@ func (b *GameServerSpecApplyConfiguration) WithEviction(value *EvictionApplyConf
 	return b
 }
 
-// WithFooBar sets the FooBar field in the declarative configuration to the given value
+// WithFooBars sets the FooBars field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the FooBar field is set to the value of the last call.
-func (b *GameServerSpecApplyConfiguration) WithFooBar(value agonesv1.FooBar) *GameServerSpecApplyConfiguration {
-	b.FooBar = &value
+// If called multiple times, the FooBars field is set to the value of the last call.
+func (b *GameServerSpecApplyConfiguration) WithFooBars(value agonesv1.FooBar) *GameServerSpecApplyConfiguration {
+	b.FooBars = &value
 	return b
 }

@@ -262,10 +262,10 @@ func (ext *Extensions) creationMutationHandler(review admissionv1.AdmissionRevie
 	// the rest is really just json plumbing
 	gs.ApplyDefaults()
 
-	if gs.Spec.FooBar != "" {
-		fmt.Printf("gs.Spec.FooBar: %s", gs.Spec.FooBar)
+	if gs.Spec.FooBars != 1000 {
+		fmt.Printf("gs.Spec.FooBar: %d", gs.Spec.FooBars)
 	} else {
-		log.Fatalf("gs.Spec.FooBar Fatalf: %s", gs.Spec.FooBar)
+		log.Fatalf("gs.Spec.FooBar Fatalf: %d", gs.Spec.FooBars)
 	}
 
 	newGS, err := json.Marshal(gs)
