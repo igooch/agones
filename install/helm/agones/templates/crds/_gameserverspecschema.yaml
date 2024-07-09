@@ -158,6 +158,14 @@ properties:
             type: integer
             title: The initial player capacity of this Game Server
             minimum: 0
+      foo:
+        title: Testing CRD defaulting
+        type: string
+        enum:
+        - Bar
+        - Baz
+        - Qux
+        default: Qux
       counters:
         type: object
         title: Map of player, room, session, etc. counters

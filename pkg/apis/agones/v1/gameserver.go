@@ -229,6 +229,7 @@ type GameServerSpec struct {
 	// (Alpha, PlayerTracking feature flag) Players provides the configuration for player tracking features.
 	// +optional
 	Players *PlayersSpec `json:"players,omitempty"`
+	Foo     apis.FooBar  `json:"foo,omitempty"`
 	// (Beta, CountsAndLists feature flag) Counters provides the configuration for tracking of int64 values against a GameServer.
 	// Keys must be declared at GameServer creation time.
 	// +optional

@@ -5475,6 +5475,16 @@ spec:
                              type: integer
                              title: The initial player capacity of this Game Server
                              minimum: 0
+                       foo:
+                         type: object
+                         title: Testing CRD defaulting
+                         properties:
+                           bar:
+                             type: string
+                             enum:
+                             - Baz
+                             - Qux
+                             default: Qux
                        counters:
                          type: object
                          title: Map of player, room, session, etc. counters
@@ -10902,6 +10912,16 @@ spec:
                      type: integer
                      title: The initial player capacity of this Game Server
                      minimum: 0
+               foo:
+                 type: object
+                 title: Testing CRD defaulting
+                 properties:
+                   bar:
+                     type: string
+                     enum:
+                     - Baz
+                     - Qux
+                     default: Qux
                counters:
                  type: object
                  title: Map of player, room, session, etc. counters
@@ -16451,6 +16471,16 @@ spec:
                               type: integer
                               title: The initial player capacity of this Game Server
                               minimum: 0
+                        foo:
+                          type: object
+                          title: Testing CRD defaulting
+                          properties:
+                            bar:
+                              type: string
+                              enum:
+                              - Baz
+                              - Qux
+                              default: Qux
                         counters:
                           type: object
                           title: Map of player, room, session, etc. counters
