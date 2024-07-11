@@ -15,13 +15,23 @@
 package apis
 
 const (
-	// Bar enum value for testing CRD defaulting
-	Bar FooBar = "Bar"
-	// Baz enum value for testing CRD defaulting
-	Baz FooBar = "Baz"
-	// Qux enum value for testing CRD defaulting
-	Qux FooBar = "Qux"
+	// Foo1 enum value for testing CRD defaulting
+	Foo1 Foos = "foo1"
+	// Foo2 enum value for testing CRD defaulting
+	Foo2 Foos = "foo2"
+	// Foo3 enum value for testing CRD defaulting
+	Foo3 Foos = "foo3"
 )
 
-// FooBar enum values for testing CRD defaulting
-type FooBar string
+// Foos enum values for testing CRD defaulting
+type Foos string
+
+// Bars tracks the initial player capacity
+type Bars struct {
+	BarCapacity int64 `json:"barCapacity,omitempty"`
+}
+
+// Bazes tracks the initial player capacity
+type Bazes struct {
+	BazCapacity int64 `json:"bazCapacity,omitempty"`
+}

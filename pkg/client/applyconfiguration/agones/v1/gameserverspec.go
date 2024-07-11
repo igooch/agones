@@ -33,7 +33,9 @@ type GameServerSpecApplyConfiguration struct {
 	SdkServer  *SdkServerApplyConfiguration               `json:"sdkServer,omitempty"`
 	Template   *corev1.PodTemplateSpec                    `json:"template,omitempty"`
 	Players    *PlayersSpecApplyConfiguration             `json:"players,omitempty"`
-	Foo        *apis.FooBar                               `json:"foo,omitempty"`
+	Foo        *apis.Foos                                 `json:"foo,omitempty"`
+	Bar        *apis.Bars                                 `json:"bar,omitempty"`
+	Baz        *apis.Bazes                                `json:"baz,omitempty"`
 	Counters   map[string]CounterStatusApplyConfiguration `json:"counters,omitempty"`
 	Lists      map[string]ListStatusApplyConfiguration    `json:"lists,omitempty"`
 	Eviction   *EvictionApplyConfiguration                `json:"eviction,omitempty"`
@@ -109,8 +111,24 @@ func (b *GameServerSpecApplyConfiguration) WithPlayers(value *PlayersSpecApplyCo
 // WithFoo sets the Foo field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Foo field is set to the value of the last call.
-func (b *GameServerSpecApplyConfiguration) WithFoo(value apis.FooBar) *GameServerSpecApplyConfiguration {
+func (b *GameServerSpecApplyConfiguration) WithFoo(value apis.Foos) *GameServerSpecApplyConfiguration {
 	b.Foo = &value
+	return b
+}
+
+// WithBar sets the Bar field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Bar field is set to the value of the last call.
+func (b *GameServerSpecApplyConfiguration) WithBar(value apis.Bars) *GameServerSpecApplyConfiguration {
+	b.Bar = &value
+	return b
+}
+
+// WithBaz sets the Baz field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Baz field is set to the value of the last call.
+func (b *GameServerSpecApplyConfiguration) WithBaz(value apis.Bazes) *GameServerSpecApplyConfiguration {
+	b.Baz = &value
 	return b
 }
 

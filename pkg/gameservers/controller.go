@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -448,6 +449,15 @@ func (c *Controller) syncGameServer(ctx context.Context, key string) error {
 	}
 
 	gs, err := c.gameServerLister.GameServers(namespace).Get(name)
+	if gs.Spec.Foo == "" {
+		log.Println("gs.Spec.Foo is", gs.Spec.Foo)
+	}
+	if gs.Spec.Bar == nil {
+		log.Println("gs.Spec.Bar is", gs.Spec.Bar)
+	}
+	if gs.Spec.Baz == nil {
+		log.Println("gs.Spec.Baz is", gs.Spec.Baz)
+	}
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			loggerForGameServerKey(key, c.baseLogger).Debug("GameServer is no longer available for syncing")

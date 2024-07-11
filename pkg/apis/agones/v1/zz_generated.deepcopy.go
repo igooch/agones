@@ -22,6 +22,7 @@
 package v1
 
 import (
+	apis "agones.dev/agones/pkg/apis"
 	corev1 "k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -481,6 +482,16 @@ func (in *GameServerSpec) DeepCopyInto(out *GameServerSpec) {
 	if in.Players != nil {
 		in, out := &in.Players, &out.Players
 		*out = new(PlayersSpec)
+		**out = **in
+	}
+	if in.Bar != nil {
+		in, out := &in.Bar, &out.Bar
+		*out = new(apis.Bars)
+		**out = **in
+	}
+	if in.Baz != nil {
+		in, out := &in.Baz, &out.Baz
+		*out = new(apis.Bazes)
 		**out = **in
 	}
 	if in.Counters != nil {

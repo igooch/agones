@@ -159,13 +159,30 @@ properties:
             title: The initial player capacity of this Game Server
             minimum: 0
       foo:
-        title: Testing CRD defaulting
+        title: Testing CRD defaulting enum string with default
         type: string
         enum:
-        - Bar
-        - Baz
-        - Qux
-        default: Qux
+        - foo1
+        - foo2
+        - foo3
+        default: foo3
+      bar:
+        title: Testing CRD defaulting nullable object with default
+        type: object
+        nullable: true
+        properties:
+          barCapacity:
+            type: integer
+            minimum: 0
+            default: 99
+      baz:
+        title: Testing CRD defaulting nullable object without default
+        type: object
+        nullable: true
+        properties:
+          bazCapacity:
+            type: integer
+            minimum: 0
       counters:
         type: object
         title: Map of player, room, session, etc. counters
