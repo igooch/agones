@@ -30,7 +30,7 @@ type FleetAutoscalerPolicyApplyConfiguration struct {
 	Webhook *WebhookPolicyApplyConfiguration `json:"webhook,omitempty"`
 	Counter *CounterPolicyApplyConfiguration `json:"counter,omitempty"`
 	List    *ListPolicyApplyConfiguration    `json:"list,omitempty"`
-	Chain   *v1.ChainPolicy                  `json:"chain,omitempty"`
+	Chain   []*v1.ChainPolicy                `json:"chain,omitempty"`
 }
 
 // FleetAutoscalerPolicyApplyConfiguration constructs an declarative configuration of the FleetAutoscalerPolicy type for use with
@@ -79,10 +79,15 @@ func (b *FleetAutoscalerPolicyApplyConfiguration) WithList(value *ListPolicyAppl
 	return b
 }
 
-// WithChain sets the Chain field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Chain field is set to the value of the last call.
-func (b *FleetAutoscalerPolicyApplyConfiguration) WithChain(value v1.ChainPolicy) *FleetAutoscalerPolicyApplyConfiguration {
-	b.Chain = &value
+// WithChain adds the given value to the Chain field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Chain field.
+func (b *FleetAutoscalerPolicyApplyConfiguration) WithChain(values ...**v1.ChainPolicy) *FleetAutoscalerPolicyApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithChain")
+		}
+		b.Chain = append(b.Chain, *values[i])
+	}
 	return b
 }

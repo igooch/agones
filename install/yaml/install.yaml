@@ -5773,30 +5773,33 @@ spec:
                       nullable: true
                       items:
                         type: object
-                        nullable: true
                         required:
                           - policy
-                          - schedule
                         properties:
                           id: # The Id of a chain entry.
                             type: string
                           schedule: # Defines when the policy is applied.
                             type: object
+                            nullable: true
                             properties:
                               between:
                                 type: object
-                                start: # Defines when to start evaluating the active period, must conform to RFC3339.
-                                  type: string
-                                end: # Defines when to stop evaluating the active period, must conform to RFC3339.
-                                  type: string
+                                nullable: true
+                                properties:
+                                  start: # Defines when to start evaluating the active period, must conform to RFC3339.
+                                    type: string
+                                  end: # Defines when to stop evaluating the active period, must conform to RFC3339.
+                                    type: string
                               activePeriod:
                                 type: object
-                                timezone: # Timezone to be used for the startCron field, must conform with the IANA Time Zone database (e.g. America/New_York).
-                                  type: string
-                                startCron:  # Cron expression defining when to start applying the policy. All TZ/CRON_TZ specification within startCron will be rejected, please use the timezone field above to specify a timezone. Must conform with UNIX CRON syntax.
-                                  type: string
-                                duration: # The length of time the policy should be applied for (e.g. 2h45m).
-                                  type: string          
+                                nullable: true
+                                properties:
+                                  timezone: # Timezone to be used for the startCron field, must conform with the IANA Time Zone database (e.g. America/New_York).
+                                    type: string
+                                  startCron:  # Cron expression defining when to start applying the policy. All TZ/CRON_TZ specification within startCron will be rejected, please use the timezone field above to specify a timezone. Must conform with UNIX CRON syntax.
+                                    type: string
+                                  duration: # The length of time the policy should be applied for (e.g. 2h45m).
+                                    type: string          
                           policy:
                             type: object
                             required:
@@ -17229,7 +17232,7 @@ spec:
         - name: LOG_LEVEL
           value: "info"
         - name: FEATURE_GATES
-          value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true"
+          value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true&ScheduledAutoscaler=true"
         - name: ALLOCATION_BATCH_WAIT_TIME
           value: "500ms"
         - name: CLOUD_PRODUCT
@@ -17373,7 +17376,7 @@ spec:
         - name: LOG_LEVEL
           value: "info"
         - name: FEATURE_GATES
-          value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true"
+          value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true&ScheduledAutoscaler=true"
         - name: ALLOCATION_BATCH_WAIT_TIME
           value: "500ms"
         - name: CLOUD_PRODUCT
@@ -17514,7 +17517,7 @@ spec:
           - name: UDP_RATE_LIMIT
             value: "20"
           - name: FEATURE_GATES
-            value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true"
+            value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true&ScheduledAutoscaler=true"
 ---
 # Source: agones/templates/service/allocation.yaml
 # Deploy pods to run the agones-allocator code
@@ -17633,7 +17636,7 @@ spec:
         - name: LOG_LEVEL
           value: "info"
         - name: FEATURE_GATES
-          value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true"
+          value: "PlayerAllocationFilter=true&PlayerTracking=true&RollingUpdateFix=true&PortRanges=true&PortPolicyNone=true&AutopilotPassthroughPort=true&ScheduledAutoscaler=true&Example=true&ScheduledAutoscaler=true"
         - name: ALLOCATION_BATCH_WAIT_TIME
           value: "500ms"
         - name: READINESS_SHUTDOWN_DURATION

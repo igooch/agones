@@ -18,24 +18,24 @@
 
 package v1
 
-// ChainEntryApplyConfiguration represents an declarative configuration of the ChainEntry type for use
+// ChainPolicyApplyConfiguration represents an declarative configuration of the ChainPolicy type for use
 // with apply.
-type ChainEntryApplyConfiguration struct {
+type ChainPolicyApplyConfiguration struct {
 	ID       *string                                  `json:"id,omitempty"`
 	Schedule *ScheduleApplyConfiguration              `json:"schedule,omitempty"`
 	Policy   *FleetAutoscalerPolicyApplyConfiguration `json:"policy,omitempty"`
 }
 
-// ChainEntryApplyConfiguration constructs an declarative configuration of the ChainEntry type for use with
+// ChainPolicyApplyConfiguration constructs an declarative configuration of the ChainPolicy type for use with
 // apply.
-func ChainEntry() *ChainEntryApplyConfiguration {
-	return &ChainEntryApplyConfiguration{}
+func ChainPolicy() *ChainPolicyApplyConfiguration {
+	return &ChainPolicyApplyConfiguration{}
 }
 
 // WithID sets the ID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ID field is set to the value of the last call.
-func (b *ChainEntryApplyConfiguration) WithID(value string) *ChainEntryApplyConfiguration {
+func (b *ChainPolicyApplyConfiguration) WithID(value string) *ChainPolicyApplyConfiguration {
 	b.ID = &value
 	return b
 }
@@ -43,7 +43,7 @@ func (b *ChainEntryApplyConfiguration) WithID(value string) *ChainEntryApplyConf
 // WithSchedule sets the Schedule field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Schedule field is set to the value of the last call.
-func (b *ChainEntryApplyConfiguration) WithSchedule(value *ScheduleApplyConfiguration) *ChainEntryApplyConfiguration {
+func (b *ChainPolicyApplyConfiguration) WithSchedule(value *ScheduleApplyConfiguration) *ChainPolicyApplyConfiguration {
 	b.Schedule = value
 	return b
 }
@@ -51,7 +51,7 @@ func (b *ChainEntryApplyConfiguration) WithSchedule(value *ScheduleApplyConfigur
 // WithPolicy sets the Policy field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Policy field is set to the value of the last call.
-func (b *ChainEntryApplyConfiguration) WithPolicy(value *FleetAutoscalerPolicyApplyConfiguration) *ChainEntryApplyConfiguration {
+func (b *ChainPolicyApplyConfiguration) WithPolicy(value *FleetAutoscalerPolicyApplyConfiguration) *ChainPolicyApplyConfiguration {
 	b.Policy = value
 	return b
 }
