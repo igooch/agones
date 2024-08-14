@@ -20,6 +20,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"strconv"
@@ -41,6 +42,8 @@ func main() {
 	readyOnStart := flag.Bool("ready", true, "Mark this GameServer as Ready on startup")
 	shutdownDelayMin := flag.Int("automaticShutdownDelayMin", 0, "[Deprecated] If greater than zero, automatically shut down the server this many minutes after the server becomes allocated (please use automaticShutdownDelaySec instead)")
 	shutdownDelaySec := flag.Int("automaticShutdownDelaySec", 0, "If greater than zero, automatically shut down the server this many seconds after the server becomes allocated (cannot be used if automaticShutdownDelayMin is set)")
+	shutdownRandomMinSec := flag.Int("shutdownRandomMinSec", 0, "If greater than zero, shuts a ready game server down automatically pseudorandomly between the given number of seconds and shutdownRandomMaxSec (default 240)")
+	shutdownRandomMaxSec := flag.Int("shutdownRandomMaxSec", 0, "If greater than zero, shuts a ready game server down automatically pseudorandomly between shutdownRandomMinSec (default 120) and the given number of seconds")
 	readyDelaySec := flag.Int("readyDelaySec", 0, "If greater than zero, wait this many seconds each time before marking the game server as ready")
 	readyIterations := flag.Int("readyIterations", 0, "If greater than zero, return to a ready state this number of times before shutting down")
 	gracefulTerminationDelaySec := flag.Int("gracefulTerminationDelaySec", 0, "Delay after we've been asked to terminate (by SIGKILL or automaticShutdownDelaySec)")
@@ -74,6 +77,9 @@ func main() {
 	}
 	if *readyIterations > 0 && *shutdownDelayMin <= 0 && *shutdownDelaySec <= 0 {
 		log.Fatalf("Must set a shutdown delay if using ready iterations")
+	}
+	if (*shutdownRandomMinSec != 0 || *shutdownRandomMaxSec !=0) && (*shutdownDelayMin != 0 || *shutdownDelaySec != 0) {
+		log.Fatalf("shutdownRandomMinSec and shutdownRandomMaxSec cannot be used with shutdownDelayMin or shutdownDelaySec")
 	}
 
 	log.Print("Creating SDK instance")
@@ -123,10 +129,41 @@ func main() {
 		}
 	}
 
+	if *shutdownRandomMinSec > 0 || *shutdownRandomMaxSec > 0 {
+		shutdownRandomly(s,  *shutdownRandomMinSec, *shutdownRandomMaxSec)
+	}
+
 	<-sigCtx.Done()
 	log.Printf("Waiting %d seconds before exiting", *gracefulTerminationDelaySec)
 	time.Sleep(time.Duration(*gracefulTerminationDelaySec) * time.Second)
 	os.Exit(0)
+}
+
+// shutdownRandomly sends the shutdown signal to the Game Server after a random time between minSec
+// and maxSec. Default minSec is 120 seconds. Default maxSec is 240 seconds.
+// Basic simulation of Game Server churn.
+func shutdownRandomly(s *sdk.SDK, minSec, maxSec int) {
+	gs, err := s.GameServer()
+	if err != nil {
+		log.Fatalf("Could not get game server: %v", err)
+	}
+
+	// Default is 120 to allow most game servers to get to the Ready state.
+	if minSec <= 0 {
+		minSec = 120
+	}
+	if maxSec <= 0 {
+		maxSec = 240
+	}
+
+	seconds := rand.Intn(maxSec) + minSec
+	log.Printf("Sending Shutdown signal to Game Server %s after %d seconds", gs.ObjectMeta.Name, seconds)
+	time.Sleep(time.Duration(seconds) * time.Second)
+
+	log.Printf("Moving Game Server %s to Shutdown", gs.ObjectMeta.Name)
+	if shutdownErr := s.Shutdown(); shutdownErr != nil {
+		log.Fatalf("Could not shutdown game server: %v", shutdownErr)
+	}
 }
 
 // shutdownAfterNAllocations creates a callback to automatically shut down
