@@ -1,0 +1,60 @@
+---
+# Copyright 2024 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Google Cloud Builder CI configuration
+#
+# THIS FILE DOES NOT WORK
+steps:
+  #
+  # build-upgrade-test and push-upgrade-test steps are in the cloudbuild.yaml file.
+  #
+
+  #
+  # Run the in place upgrades tests
+  #
+  # - name: 'bash'
+  #   args: ['ls', '../usr/local']
+  #   id: list
+
+  - name: 'ubuntu'
+    dir: 'test/upgrade/'
+    entrypoint: 'bash'
+    args: ['entrypoint.sh']
+    env:
+      - TEST_CLUSTER_NAME=${_TEST_CLUSTER_NAME}
+      - TEST_CLUSTER_LOCATION=${_TEST_CLUSTER_LOCATION}
+      - TEST_PROJECT_ID=${_TEST_PROJECT_ID}
+      - REGISTRY=${_REGISTRY}
+      - PARENT_COMMIT_SHA=${_PARENT_COMMIT_SHA}
+    id: upgrade-tests
+
+
+tags:
+  - upgrade-test
+  - cluster-${_TEST_CLUSTER_NAME}
+  - location-${_TEST_CLUSTER_LOCATION}
+  - commit-${_PARENT_COMMIT_SHA}
+  - started-by-${_PARENT_BUILD_ID}
+timeout: 1800s  # 30 min
+queueTtl: 3600s  # 1 hour
+# logsBucket: gs://agones-build-logs
+
+# TODO: Remove after testing
+# substitutions:
+#   _TEST_CLUSTER_NAME: auto-130
+#   _TEST_CLUSTER_LOCATION: us-central1
+#   _REGISTRY: us-docker.pkg.dev/igooch-gke-dev/agonesrepo
+#   _TEST_PROJECT_ID: igooch-gke-dev
+#   _PARENT_COMMIT_SHA: 26f9b99f2463f55f20db19feb4d96eb88b056e0f1be7016bb9296a464a89d772
