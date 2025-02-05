@@ -535,8 +535,12 @@ push-controller-image: push-controller-image-amd64
 ifeq ($(WITH_ARM64), 1)
 push-controller-image: push-controller-image-arm64
 endif
-	# Docker >=24.0.6
-	docker buildx imagetools create --tag $(controller_tag) $(push_controller_manifest)
+	# Ensure that the controller manifest is removed before creating a new one.
+	-DOCKER_CLI_EXPERIMENTAL=enabled docker manifest rm $(controller_tag)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(controller_tag) $(push_controller_manifest)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(controller_tag)
+	# # Docker >=24.0.6
+	# docker buildx imagetools create --tag $(controller_tag) $(push_controller_manifest)
 
 push-controller-image-amd64: build-controller-image-amd64
 	docker push $(controller_amd64_tag)
@@ -590,8 +594,12 @@ push-extensions-image: push-extensions-image-amd64
 ifeq ($(WITH_ARM64), 1)
 push-extensions-image: push-extensions-image-arm64
 endif
-	# Docker >=24.0.6
-	docker buildx imagetools create --tag $(extensions_tag) $(push_extensions_manifest)
+	# Ensure that extensions manifest is removed before creating new one.
+	-DOCKER_CLI_EXPERIMENTAL=enabled docker manifest rm $(extensions_tag)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(extensions_tag) $(push_extensions_manifest)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(extensions_tag)
+	# # Docker >=24.0.6
+	# docker buildx imagetools create --tag $(extensions_tag) $(push_extensions_manifest)
 
 # push extensions image
 push-extensions-image-amd64: build-extensions-image-amd64
@@ -641,8 +649,12 @@ push-ping-image: push-ping-image-amd64
 ifeq ($(WITH_ARM64), 1)
 push-ping-image: push-ping-image-arm64
 endif
-	# Docker >=24.0.6
-	docker buildx imagetools create --tag $(ping_tag) $(push_ping_manifest)
+	# Ensure that the ping manifest is removed before creating a new one.
+	-DOCKER_CLI_EXPERIMENTAL=enabled docker manifest rm $(ping_tag)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(ping_tag) $(push_ping_manifest)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(ping_tag)
+	# # Docker >=24.0.6
+	# docker buildx imagetools create --tag $(ping_tag) $(push_ping_manifest)
 
 
 push-ping-image-amd64: $(ensure-build-image) build-ping-image-amd64
@@ -682,8 +694,12 @@ push-allocator-image: push-allocator-image-amd64
 ifeq ($(WITH_ARM64), 1)
 push-allocator-image: push-allocator-image-arm64
 endif
-	# Docker >=24.0.6
-	docker buildx imagetools create --tag $(allocator_tag) $(push_allocator_manifest)
+	# Ensure that the allocator manifest is removed before creating a new one.
+	-DOCKER_CLI_EXPERIMENTAL=enabled docker manifest rm $(allocator_tag)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(allocator_tag) $(push_allocator_manifest)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(allocator_tag)
+	# # Docker >=24.0.6
+	# docker buildx imagetools create --tag $(allocator_tag) $(push_allocator_manifest)
 
 push-allocator-image-amd64: build-allocator-image-amd64
 	docker push $(allocator_amd64_tag)
@@ -710,8 +726,12 @@ endif
 ifeq ($(WITH_ARM64), 1)
 push-agones-sdk-image: push-agones-sdk-linux-image-arm64
 endif
-	# Docker >=24.0.6
-	docker buildx imagetools create --tag $(sidecar_tag) $(push_sidecar_manifest)
+	# Ensure that the sidecar manifest is removed before creating a new one.
+	-DOCKER_CLI_EXPERIMENTAL=enabled docker manifest rm $(sidecar_tag)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create $(sidecar_tag) $(push_sidecar_manifest)
+	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push $(sidecar_tag)
+	# # Docker >=24.0.6
+	# docker buildx imagetools create --tag $(sidecar_tag) $(push_sidecar_manifest)
 
 push-agones-sdk-windows: WINDOWS_DOCKER_PUSH_ARGS=--push
 push-agones-sdk-windows: build-agones-sdk-image-windows
