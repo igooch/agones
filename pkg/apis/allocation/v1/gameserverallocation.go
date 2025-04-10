@@ -141,16 +141,16 @@ type GameServerSelector struct {
 	Players *PlayerSelector `json:"players,omitempty"`
 	// [Stage: Beta]
 	// [FeatureFlag:CountsAndLists]
-	// Counters provides filters on minimum and maximum values
-	// for a Counter's count and available capacity when retrieving a GameServer through Allocation.
+	// Counters provides filters on minimum and maximum values for a Counter's count and available
+	// capacity when retrieving a GameServer through Allocation.
 	// Defaults to no limits.
 	// +optional
 	Counters map[string]CounterSelector `json:"counters,omitempty"`
 	// [Stage: Beta]
 	// [FeatureFlag:CountsAndLists]
-	// Lists provides filters on minimum and maximum values
-	// for List capacity, and for the existence of a value in a List, when retrieving a GameServer
-	// through Allocation. Defaults to no limits.
+	// Lists provides filters on minimum and maximum values for List capacity, and for the existence
+	// of a value in a List, when retrieving a GameServer through Allocation.
+	// Defaults to no limits.
 	// +optional
 	Lists map[string]ListSelector `json:"lists,omitempty"`
 }

@@ -23,6 +23,10 @@ spec:
       labels:
         version: "1.2.3"
     spec:
+      counters:
+        players:
+          count: 0
+          capacity: 50
       ports:
         - name: default
           containerPort: 7654

@@ -485,7 +485,7 @@ func (c *Allocator) allocate(ctx context.Context, gsa *allocationv1.GameServerAl
 }
 
 // ListenAndAllocate is a blocking function that runs in a loop
-// looking at c.requestBatches for batches of requests that are coming through.
+// looking at c.pendingRequests for batches of requests that are coming through.
 func (c *Allocator) ListenAndAllocate(ctx context.Context, updateWorkerCount int) {
 	// setup workers for allocation updates. Push response values into
 	// this queue for concurrent updating of GameServers to Allocated
@@ -565,20 +565,20 @@ func (c *Allocator) ListenAndAllocate(ctx context.Context, updateWorkerCount int
 					list = c.allocationCache.ListSortedGameServersPriorities(req.gsa)
 				}
 			}
-
-			gs, index, err := findGameServerForAllocation(req.gsa, list)
+			// TODO: Add Feature flag to turn on / off gs removal
+			gs, _, err := findGameServerForAllocation(req.gsa, list)
 			if err != nil {
 				req.response <- response{request: req, gs: nil, err: err}
 				continue
 			}
 			// remove the game server that has been allocated
-			list = append(list[:index], list[index+1:]...)
+			// list = append(list[:index], list[index+1:]...)
 
-			if err := c.allocationCache.RemoveGameServer(gs); err != nil {
-				// this seems unlikely, but lets handle it just in case
-				req.response <- response{request: req, gs: nil, err: err}
-				continue
-			}
+			// if err := c.allocationCache.RemoveGameServer(gs); err != nil {
+			// 	// this seems unlikely, but lets handle it just in case
+			// 	req.response <- response{request: req, gs: nil, err: err}
+			// 	continue
+			// }
 
 			updateQueue <- response{request: req, gs: gs.DeepCopy(), err: nil}
 

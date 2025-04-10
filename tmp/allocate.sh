@@ -8,8 +8,6 @@ KEY_FILE=client.key
 CERT_FILE=client.crt
 TLS_CA_FILE=ca.crt
 
-echo "Starting go runs"
-
 run_allocator_client () {
   go run ../examples/allocator-client/main.go \
     --ip "${EXTERNAL_IP}" \
@@ -20,6 +18,16 @@ run_allocator_client () {
     --cacert "${TLS_CA_FILE}"
 }
 
-run_allocator_client
+echo "Starting go runs 1"
+run_allocator_client &
+sleep 3m
+
+echo "Starting go runs 2"
+run_allocator_client &
+sleep 3m
+
+echo "Starting go runs 3"
+run_allocator_client &
+
 wait
 echo "All done"

@@ -88,6 +88,8 @@ func findGameServerForAllocation(gsa *allocationv1.GameServerAllocation, list []
 
 		for j, sel := range gsa.Spec.Selectors {
 			if selectors[j] == nil && sel.Matches(gs) {
+				// TODO: Can we just return here instead of continuing to loop?
+				// Or: keep a distributed cache sorted
 				selectors[j] = &result{gs: gs, index: i}
 			}
 		}

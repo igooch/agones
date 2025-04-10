@@ -21,11 +21,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	pb "agones.dev/agones/pkg/allocation/go"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func main() {
@@ -61,18 +63,42 @@ func main() {
 				MatchLabels: map[string]string{
 					"version": "1.2.3",
 				},
+				Counters: map[string]*pb.CounterSelector{
+					"players": {
+						MinAvailable: 1,
+					},
+				},
 			},
 			{
 				GameServerState: pb.GameServerSelector_READY,
 				MatchLabels: map[string]string{
 					"version": "1.2.3",
 				},
+				Counters: map[string]*pb.CounterSelector{
+					"players": {
+						MinAvailable: 1,
+					},
+				},
+			},
+		},
+		Counters: map[string]*pb.CounterAction{
+			"players": {
+				Action: &wrapperspb.StringValue{Value: "Increment"},
+				Amount: &wrapperspb.Int64Value{Value: 1},
 			},
 		},
 		MultiClusterSetting: &pb.MultiClusterSetting{
 			Enabled: *multicluster,
 		},
+		Priorities: []*pb.Priority{
+			{Type: pb.Priority_Counter,
+				Key:   "players",
+				Order: pb.Priority_Ascending},
+		},
+		Scheduling: pb.AllocationRequest_Distributed,
 	}
+	// 	Scheduling: pb.AllocationRequest_Packed,
+	// }
 
 	dialOpts, err := createRemoteClusterDialOption(cert, key, cacert)
 	if err != nil {
@@ -85,18 +111,41 @@ func main() {
 	defer conn.Close()
 
 	grpcClient := pb.NewAllocationServiceClient(conn)
+	// const rateLimit = time.Second / 2 // calls per second
+	// throttle := time.Tick(rateLimit)
+	start :=  time.Now()
+	fails := 0
+	successes := 0
 
+  // var wg sync.WaitGroup
 	for i := 0; i < 1000; i++ {
-		allocateGameServer(grpcClient, request)
+		// wg.Add(1)
+		// go func() {
+		// 	defer wg.Done()
+		// 	<-throttle  // rate limit client calls
+			fail, success := allocateGameServer(grpcClient, request)
+			fails += fail
+			successes += success
+		// }()
 	}
+	// wg.Wait()
+	diff := time.Now().Sub(start)
+	fmt.Println("time spend", diff)
+	fmt.Println("fails", fails)
+	fmt.Println("successes", successes)
 }
 
-func allocateGameServer(client pb.AllocationServiceClient, request *pb.AllocationRequest) {
-	response, err := client.Allocate(context.Background(), request)
+func allocateGameServer(client pb.AllocationServiceClient, request *pb.AllocationRequest) (int, int) {
+	ctx := context.Background()
+	_, err := client.Allocate(ctx, request)
+	// response, err := client.Allocate(ctx, request)
 	if err != nil {
-		panic(err)
+		// fmt.Printf("response error: %s\n", err)
+		return 1, 0
+	} else {
+		// fmt.Printf("response: %s\n", response.String())
+		return 0, 1
 	}
-	fmt.Printf("response: %s\n", response.String())
 }
 
 // createRemoteClusterDialOption creates a grpc client dial option with TLS configuration.
