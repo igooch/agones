@@ -21,6 +21,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	pb "agones.dev/agones/pkg/allocation/go"
@@ -111,26 +112,29 @@ func main() {
 	defer conn.Close()
 
 	grpcClient := pb.NewAllocationServiceClient(conn)
-	// const rateLimit = time.Second / 2 // calls per second
-	// throttle := time.Tick(rateLimit)
+	const rateLimit = time.Second / 5 // calls per second
+	fmt.Println("rateLimit", rateLimit)
+	throttle := time.Tick(rateLimit)
 	start :=  time.Now()
 	fails := 0
 	successes := 0
 
-  // var wg sync.WaitGroup
+	// Make concurrent rate-limited allocation requests. Rate limit to prevent failures due to
+	// resource conflicts.
+  var wg sync.WaitGroup
 	for i := 0; i < 1000; i++ {
-		// wg.Add(1)
-		// go func() {
-		// 	defer wg.Done()
-		// 	<-throttle  // rate limit client calls
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			<-throttle  // rate limit client calls
 			fail, success := allocateGameServer(grpcClient, request)
 			fails += fail
 			successes += success
-		// }()
+		}()
 	}
-	// wg.Wait()
+	wg.Wait()
 	diff := time.Now().Sub(start)
-	fmt.Println("time spend", diff)
+	fmt.Println("time spent", diff)
 	fmt.Println("fails", fails)
 	fmt.Println("successes", successes)
 }

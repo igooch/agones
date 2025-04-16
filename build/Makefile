@@ -444,6 +444,9 @@ install: $(ensure-build-image) install-custom-pull-secret
 		--set agones.ping.http.serviceType=$(PING_SERVICE_TYPE),agones.ping.udp.serviceType=$(PING_SERVICE_TYPE) \
 		--set agones.allocator.service.serviceType=$(ALLOCATOR_SERVICE_TYPE) \
 		--set agones.controller.logLevel=$(LOG_LEVEL) \
+		--set agones.controller.allocationBatchWaitTime=5ms \
+		--set agones.allocator.allocationBatchWaitTime=5ms \
+		--set agones.extensions.allocationBatchWaitTime=5ms \
 		--set agones.crds.cleanupOnDelete=$(CRD_CLEANUP) \
 		--set agones.featureGates=$(FEATURE_GATES) \
 		--set agones.allocator.service.loadBalancerIP=$(EXTERNAL_IP) \

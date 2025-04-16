@@ -20,11 +20,11 @@ run_allocator_client () {
 
 echo "Starting go runs 1"
 run_allocator_client &
-sleep 3m
+sleep 10s
 
 echo "Starting go runs 2"
 run_allocator_client &
-sleep 3m
+sleep 10s
 
 echo "Starting go runs 3"
 run_allocator_client &

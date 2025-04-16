@@ -476,6 +476,12 @@ func (c *Allocator) allocate(ctx context.Context, gsa *allocationv1.GameServerAl
 			if err != nil {
 				log.Fatal("Could not create tag", err)
 			}
+			if res.gs.Status.Counters["players"].Count == 1 {
+				log.Println("FIRST ALLOCATION", res.gs.Name)
+			}
+			if res.gs.Status.Counters["players"].Count == res.gs.Status.Counters["players"].Capacity {
+				log.Println("LAST ALLOCATION", res.gs.Name)
+			}
 			stats.Record(ctx, gameServerAllocationsCount.M(1))
 		}
 		return res.gs, res.err
