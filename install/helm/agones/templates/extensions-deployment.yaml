@@ -32,7 +32,7 @@ spec:
       heritage: {{ .Release.Service }}
   replicas: {{ .Values.agones.extensions.replicas }}
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
       annotations:

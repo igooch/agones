@@ -36,7 +36,7 @@ spec:
       heritage: {{ .Release.Service }}
   replicas: {{ $replicas }}
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
       annotations:
