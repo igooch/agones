@@ -18022,7 +18022,7 @@ spec:
       heritage: Helm
   replicas: 2
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
       annotations:
@@ -18196,7 +18196,7 @@ spec:
       heritage: Helm
   replicas: 2
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
       annotations:
