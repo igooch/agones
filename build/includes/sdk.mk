@@ -225,8 +225,9 @@ sdk-shell-csharp:
 	$(MAKE) sdk-shell SDK_FOLDER=csharp
 
 # Publish csharp SDK to NuGet
-sdk-publish-csharp: RELEASE_VERSION ?= $(base_version)
+sdk-publish-csharp: RELEASE_VERSION ?=
 sdk-publish-csharp:
+	$(if $(RELEASE_VERSION),,$(error RELEASE_VERSION is not set. Please provide the current release version.))
 	$(MAKE) run-sdk-command-csharp COMMAND=publish VERSION=$(RELEASE_VERSION) DOCKER_RUN_ARGS="$(DOCKER_RUN_ARGS) -it"
 
 # SDK shell for rust

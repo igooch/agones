@@ -52,7 +52,7 @@ steps:
     id: build-images
     dir: build
     env:
-      - VERSION=${_VERSION}
+      - VERSION=${_RELEASE_VERSION}
       - REGISTRY=${_REGISTRY}/release
       - FULL_BUILD=1
     args: [-j, '1', build]
@@ -64,50 +64,53 @@ steps:
     id: push-images
     waitFor: [build-images]
     dir: build
-    env: ['VERSION=${_VERSION}', 'REGISTRY=${_REGISTRY}/release']
+    env: ['VERSION=${_RELEASE_VERSION}', 'REGISTRY=${_REGISTRY}/release']
     args: [-j, '1', push]
 
-  #
-  # Creating cloud storage bucket
-  #
-  - name: gcr.io/cloud-builders/gsutil
-    entrypoint: bash
-    args: [-c, gsutil mb $_STORAGE || true]
-    id: create-bucket
+#   #
+#   # Creating cloud storage bucket
+#   #
+#   - name: gcr.io/cloud-builders/gsutil
+#     entrypoint: bash
+#     args: [-c, gsutil mb $_STORAGE || true]
+#     id: create-bucket
 
-  #
-  # Zip up artifacts and push to cloud storage
-  #
-  - name: gcr.io/cloud-builders/gsutil
-    waitFor: [build-images]
-    dir: cmd/sdk-server/bin
-    args: [-m, cp, '*.zip', $_STORAGE]
-  - name: gcr.io/cloud-builders/gsutil
-    waitFor: [build-images]
-    dir: sdks/cpp/.archives
-    args: [-m, cp, '*.tar.gz', $_STORAGE]
-  - name: gcr.io/cloud-builders/gsutil
-    entrypoint: bash
-    waitFor: [build-images]
-    dir: .
-    args:
-      - -c
-      - zip -r agones-install-${_VERSION}.zip ./README.md ./install ./LICENSE | gsutil
-        -m cp -r agones-install-${_VERSION}.zip $_STORAGE
+#   #
+#   # Zip up artifacts and push to cloud storage
+#   #
+#   - name: gcr.io/cloud-builders/gsutil
+#     waitFor: [build-images]
+#     dir: cmd/sdk-server/bin
+#     args: [-m, cp, '*.zip', $_STORAGE]
+#   - name: gcr.io/cloud-builders/gsutil
+#     waitFor: [build-images]
+#     dir: sdks/cpp/.archives
+#     args: [-m, cp, '*.tar.gz', $_STORAGE]
+#   - name: gcr.io/cloud-builders/gsutil
+#     entrypoint: bash
+#     waitFor: [build-images]
+#     dir: .
+#     args:
+#       - -c
+#       - zip -r agones-install-${_VERSION}.zip ./README.md ./install ./LICENSE | gsutil
+#         -m cp -r agones-install-${_VERSION}.zip $_STORAGE
 
   #
   # Pushes the current chart version to the helm repository hosted on gcs.
   #
-  - name: make-docker
-    id: push-chart
-    waitFor: [build-images, push-images]
-    dir: build
-    env: ['VERSION=${_VERSION}', DOCKER_RUN_ARGS=--network=cloudbuild]
-    args: [push-chart]
+  # - name: make-docker
+  #   id: push-chart
+  #   waitFor: [build-images, push-images]
+  #   dir: build
+  #   env:
+  #     - VERSION=${_RELEASE_VERSION}
+  #     - RELEASE_VERSION=${_RELEASE_VERSION}
+  #     - DOCKER_RUN_ARGS=--network=cloudbuild]
+  #   args: [push-chart]
 options:
   machineType: E2_HIGHCPU_32
   dynamic_substitutions: true
 substitutions:
-  _STORAGE: gs://${PROJECT_ID}-agones-releases
-  _REGISTRY: us-docker.pkg.dev/${PROJECT_ID}
+  # _STORAGE: gs://${PROJECT_ID}-agones-releases
+  _REGISTRY: us-docker.pkg.dev/igooch-gke-dev/agonesrepo
 timeout: 7200s

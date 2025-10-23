@@ -291,7 +291,8 @@ build: build-images build-sdks
 build-images: build-controller-image build-extensions-image build-agones-sdk-image build-ping-image build-allocator-image build-processor-image
 
 # package the current agones helm chart
-build-chart: RELEASE_VERSION ?= $(base_version)
+build-chart: RELEASE_VERSION ?=
+build-chart: $(if $(RELEASE_VERSION),,$(error RELEASE_VERSION is not set. Please provide the current release version.))
 build-chart: CHART_DIR ?= install/helm/agones/
 build-chart: $(ensure-build-image)
 	docker run --rm $(common_mounts) -w $(workdir_path) $(build_tag) bash -c \
@@ -299,7 +300,8 @@ build-chart: $(ensure-build-image)
 			helm package -d install/helm/bin/ --version $(RELEASE_VERSION) $(CHART_DIR)"
 
 # push a specific release useful to push previous missing release
-push-release-chart: RELEASE_VERSION ?= $(base_version)
+push-release-chart: RELEASE_VERSION ?=
+push-release-chart: $(if $(RELEASE_VERSION),,$(error RELEASE_VERSION is not set. Please provide the current release version.))
 push-release-chart: $(ensure-build-image)
 	rm -rf /tmp/agones $(agones_path)/install/.helm-$(RELEASE_VERSION)/
 	mkdir -p $(agones_path)/install/.helm-$(RELEASE_VERSION)/
@@ -612,7 +614,7 @@ endif
 push-extensions-image-amd64: build-extensions-image-amd64
 	docker push $(extensions_amd64_tag)
 push-extensions-image-arm64: build-extensions-image-arm64
-	$(MAKE) DOCKER_BUILD_ARGS=--push build-extensions-image-arm64
+	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-extensions-image-arm64
 
 # Build the image for the gameserver sidecar and SDK binaries
 build-agones-sdk-image: $(ensure-build-image) build-agones-sdk-binary build-licenses build-required-src-dist build-agones-sdk-image-amd64
@@ -663,7 +665,7 @@ endif
 push-ping-image-amd64: $(ensure-build-image) build-ping-image-amd64
 	docker push $(ping_amd64_tag)
 push-ping-image-arm64:
-	$(MAKE) DOCKER_BUILD_ARGS=--push build-ping-image-arm64
+	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-ping-image-arm64
 
 # Build the image for the ping service
 build-ping-image: build-ping-image-amd64
@@ -703,7 +705,7 @@ endif
 push-allocator-image-amd64: build-allocator-image-amd64
 	docker push $(allocator_amd64_tag)
 push-allocator-image-arm64: build-allocator-image-arm64
-	$(MAKE) DOCKER_BUILD_ARGS=--push build-allocator-image-arm64
+	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-allocator-image-arm64
 
 # Build the image for the allocator service
 build-allocator-image: build-allocator-image-amd64
@@ -755,7 +757,7 @@ endif
 push-processor-image-amd64: build-processor-image-amd64
 	docker push $(processor_amd64_tag)
 push-processor-image-arm64: build-processor-image-arm64
-	$(MAKE) DOCKER_BUILD_ARGS=--push build-processor-image-arm64
+	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-processor-image-arm64
 
 # push the gameservers sidecar image
 push-agones-sdk-image: push-agones-sdk-linux-image-amd64
@@ -765,11 +767,11 @@ endif
 ifeq ($(WITH_ARM64), 1)
 push-agones-sdk-image: push-agones-sdk-linux-image-arm64
 endif
-	$(MAKE) push-agones-sdk-manifest
+	$(MAKE) VERSION=$(VERSION) push-agones-sdk-manifest
 
 push-agones-sdk-manifest:
 	docker manifest create --amend $(sidecar_tag) $(push_sidecar_manifest)
-	$(MAKE) push_windows_manifest
+	$(MAKE) VERSION=$(VERSION) push_windows_manifest
 	docker manifest push --purge $(sidecar_tag)
 
 push_windows_manifest:
@@ -785,7 +787,7 @@ push-agones-sdk-windows: WINDOWS_DOCKER_PUSH_ARGS=--push
 push-agones-sdk-windows: build-agones-sdk-image-windows
 
 push-agones-sdk-linux-image-arm64: $(ensure-build-image)
-	$(MAKE) DOCKER_BUILD_ARGS=--push build-agones-sdk-image-arm64
+	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-agones-sdk-image-arm64
 
 push-agones-sdk-linux-image-amd64: build-agones-sdk-image-amd64
 	docker push $(sidecar_linux_amd64_tag)

@@ -102,29 +102,29 @@ else
 endif
 
 # Ensure the example images exists for a release and deploy the previous version's website.
-pre-build-release: VERSION ?=
+pre-build-release: RELEASE_VERSION ?=
 pre-build-release:
-	$(if $(VERSION),,$(error VERSION is not set. Please provide the current release version.))
+	$(if $(RELEASE_VERSION),,$(error RELEASE_VERSION is not set. Please provide the current release version.))
 	docker run --rm $(common_mounts) -w $(workdir_path)/build/release $(build_tag) \
-		gcloud builds submit . --substitutions _BRANCH_NAME=release-$(VERSION),_VERSION=$(VERSION) --config=./pre_cloudbuild.yaml $(ARGS)
+		gcloud builds submit . --substitutions _BRANCH_NAME=release-$(RELEASE_VERSION),_VERSION=$(RELEASE_VERSION) --config=./pre_cloudbuild.yaml $(ARGS)
 
 # Build and push the images in the release repository, stores artifacts,
 # Pushes the current chart version to the helm repository hosted on gcs.
-post-build-release: VERSION ?=
+post-build-release: RELEASE_VERSION ?=
 post-build-release:
-	$(if $(VERSION),,$(error VERSION is not set. Please provide the current release version.))
+	$(if $(RELEASE_VERSION),,$(error RELEASE_VERSION is not set. Please provide the current release version.))
 	docker run --rm $(common_mounts) -w $(workdir_path)/build/release $(build_tag) \
-		gcloud builds submit . --substitutions _VERSION=$(VERSION),_BRANCH_NAME=release-$(VERSION) --config=./post_cloudbuild.yaml $(ARGS)
+		gcloud builds submit . --substitutions _RELEASE_VERSION=$(RELEASE_VERSION),_BRANCH_NAME=release-$(RELEASE_VERSION) --config=./post_cloudbuild.yaml $(ARGS)
 
 # Tags images from the previous release as deprecated.
 # The tr -d '-' command is used to remove the dashes from the output of the script
 # (e.g., 1-52-1 becomes 1.52.1), which is the format needed for the Docker image tag.
-tag-deprecated-images: VERSION ?=
+tag-deprecated-images: RELEASE_VERSION ?=
 tag-deprecated-images: $(ensure-build-image)
 tag-deprecated-images: DOCKER_RUN_ARGS += -e GOFLAGS="-mod=mod" --entrypoint=/usr/local/go/bin/go
 tag-deprecated-images:
-	$(if $(VERSION),,$(error VERSION is not set. Please provide the current release version.))
-	previous_version=$$($(DOCKER_RUN) run $(mount_path)/build/scripts/previousversion/main.go -version $(VERSION)| tr '-' '.') && \
+	$(if $(RELEASE_VERSION),,$(error RELEASE_VERSION is not set. Please provide the current release version.))
+	previous_version=$$($(DOCKER_RUN) run $(mount_path)/build/scripts/previousversion/main.go -version $(RELEASE_VERSION)| tr '-' '.') && \
 	images="agones-controller agones-extensions agones-sdk agones-allocator agones-ping agones-processor" && \
 	for image in $$images; do \
 		echo "Tagging ${release_registry}/$$image:$$previous_version as deprecated..."; \
