@@ -557,8 +557,8 @@ endif
 
 push-controller-image-amd64: build-controller-image-amd64
 	docker push $(controller_amd64_tag)
-push-controller-image-arm64: build-controller-image-arm64
-	$(MAKE) DOCKER_BUILD_ARGS=--push build-controller-image-arm64
+push-controller-image-arm64:
+	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-controller-image-arm64
 
 # build the static binary for the gameserver sidecar
 build-agones-sdk-binary: $(ensure-build-image) build-agones-sdk-binary-linux-amd64 build-agones-sdk-binary-linux-arm64 build-agones-sdk-binary-windows build-agones-sdk-binary-darwin-amd64 build-agones-sdk-binary-darwin-arm64
@@ -613,7 +613,7 @@ endif
 # push extensions image
 push-extensions-image-amd64: build-extensions-image-amd64
 	docker push $(extensions_amd64_tag)
-push-extensions-image-arm64: build-extensions-image-arm64
+push-extensions-image-arm64:
 	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-extensions-image-arm64
 
 # Build the image for the gameserver sidecar and SDK binaries
@@ -704,7 +704,7 @@ endif
 
 push-allocator-image-amd64: build-allocator-image-amd64
 	docker push $(allocator_amd64_tag)
-push-allocator-image-arm64: build-allocator-image-arm64
+push-allocator-image-arm64:
 	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-allocator-image-arm64
 
 # Build the image for the allocator service
@@ -756,7 +756,7 @@ endif
 
 push-processor-image-amd64: build-processor-image-amd64
 	docker push $(processor_amd64_tag)
-push-processor-image-arm64: build-processor-image-arm64
+push-processor-image-arm64:
 	$(MAKE) VERSION=$(VERSION) DOCKER_BUILD_ARGS=--push build-processor-image-arm64
 
 # push the gameservers sidecar image

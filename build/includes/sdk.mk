@@ -222,7 +222,7 @@ sdk-shell-node:
 
 # SDK shell for csharp
 sdk-shell-csharp:
-	$(MAKE) sdk-shell SDK_FOLDER=csharp
+	$(MAKE) sdk-shell SDK_FOLDER=csharp-arm64
 
 # Publish csharp SDK to NuGet
 sdk-publish-csharp: RELEASE_VERSION ?=
